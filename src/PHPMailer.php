@@ -2429,10 +2429,6 @@ class PHPMailer
         $this->boundary[2] = 'b2_' . $this->uniqueid;
         $this->boundary[3] = 'b3_' . $this->uniqueid;
 
-        if ($this->sign_key_file) {
-            $body .= $this->getMailMIME() . static::$LE;
-        }
-
         $this->setWordWrap();
 
         $bodyEncoding = $this->Encoding;
@@ -2462,6 +2458,17 @@ class PHPMailer
         if ('base64' != $altBodyEncoding and static::hasLineLongerThanMax($this->AltBody)) {
             $altBodyEncoding = 'quoted-printable';
         }
+        
+        if ($this->Encoding !== $bodyEncoding
+            and $altBodyEncoding === $bodyEncoding
+            and '8bit' === $this->Encoding) {
+            $this->Encoding = $bodyEncoding;
+        }
+
+        if ($this->sign_key_file) {
+            $body .= $this->getMailMIME().static::$LE;
+        }
+        
         //Use this as a preamble in all multipart message types
         $mimepre = 'This is a multi-part message in MIME format.' . static::$LE;
         switch ($this->message_type) {
